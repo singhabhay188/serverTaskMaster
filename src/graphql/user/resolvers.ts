@@ -19,6 +19,16 @@ const queries = {
       return user;
     } catch (error) {
       console.log("Error occurred while verifying user: ", error);
+
+      if (error instanceof Error) {
+        if (error.message === "No token provided") {
+          throw new Error("No token provided");
+        } else if (error.message === "Invalid token") {
+          throw new Error("Invalid token");
+        } else if (error.message === "User not found") {
+          throw new Error("User not found");
+        }
+      }
       throw new Error("Failed to verify user");
     }
   },
@@ -41,9 +51,11 @@ const queries = {
 const mutations = {
   async createUser(
     parent: any,
-    { email, password, name }: { email: string; password: string; name: string }
+    { input }: { input: { email: string; password: string; name: string } }
   ) {
     try {
+      const { email, password, name } = input;
+
       const existingUser = await prisma.user.findUnique({
         where: { email },
       });
@@ -55,7 +67,7 @@ const mutations = {
       const user = await prisma.user.create({
         data: {
           email,
-          password, // Note: In production, password should be hashed
+          password,
           name,
         },
       });
@@ -73,9 +85,11 @@ const mutations = {
 
   async loginUser(
     parent: any,
-    { email, password }: { email: string; password: string }
+    { input }: { input: { email: string; password: string } }
   ) {
     try {
+      const { email, password } = input;
+
       const user = await prisma.user.findFirst({
         where: {
           email,

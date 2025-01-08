@@ -1,4 +1,9 @@
 export const types = `
+     type AuthPayload {
+          user: User!
+          token: String!
+     }
+
      type User {
           id: ID!
           name: String!

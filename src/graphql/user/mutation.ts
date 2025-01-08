@@ -1,4 +1,4 @@
 export const mutation = `
-  createUser(input: CreateUserInput!): User!
-  loginUser(input: LoginUserInput!): User!
+  createUser(input: CreateUserInput!): AuthPayload!
+  loginUser(input: LoginUserInput!): AuthPayload!
 `;
