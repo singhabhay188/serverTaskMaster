@@ -11,20 +11,46 @@ const queries = {
       throw new Error("Failed to fetch tasks");
     }
   },
+
+  taskById: async (parent: any, { id }: { id: string }) => {
+    try {
+      const task = await prisma.task.findUnique({ where: { id } });
+      if (!task) {
+        throw new Error("Task not found with given Id");
+      }
+      return task;
+    } catch (error) {
+      console.error("Error fetching task by id:", error);
+      throw new Error("Failed to fetch task by id");
+    }
+  },
 };
 
 const mutations = {
   createTask: async (
     parent: any,
-    args: { title: string; description: string }
+    args: { title: string; description: string; dueDate?: string }
   ) => {
     try {
-      let { title, description } = args;
+      let { title, description, dueDate } = args;
+
+      let date: string | null = null;
+
+      if (dueDate) {
+        if (!isNaN(Date.parse(dueDate))) {
+          const cdate = new Date(dueDate);
+          cdate.setHours(23, 59, 59, 999);
+          date = cdate.toISOString();
+        } else {
+          throw new Error("Invalid date format. Please provide a valid date");
+        }
+      }
 
       return await prisma.task.create({
         data: {
           title,
           description,
+          dueDate: date,
         },
       });
     } catch (error) {
