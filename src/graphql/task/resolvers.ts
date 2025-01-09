@@ -16,11 +16,13 @@ const queries = {
     try {
       const task = await prisma.task.findUnique({ where: { id } });
       if (!task) {
-        throw new Error("Task not found with given Id");
+        throw new Error("Invalid Id. Task not found with given Id.");
       }
       return task;
     } catch (error) {
-      console.error("Error fetching task by id:", error);
+      if (error instanceof Error) {
+        throw error;
+      }
       throw new Error("Failed to fetch task by id");
     }
   },
@@ -63,33 +65,44 @@ const mutations = {
 
   updateTask: async (
     parent: any,
-    args: { id: string; title?: string; description?: string; status?: string }
+    args: {
+      id: string;
+      title: string;
+      description: string;
+      status: string;
+      dueDate?: string;
+    }
   ) => {
     try {
-      const { id, title, description, status } = args;
+      const { id, title, description, status, dueDate } = args;
 
-      if (status && !Object.values(Status).includes(status as Status)) {
-        throw new Error("Invalid task status");
+      if (!status || !Object.values(Status).includes(status as Status)) {
+        throw new Error("Invalid task status passed");
       }
 
-      const updateData: {
-        title?: string;
-        description?: string;
-        status?: Status;
-      } = {};
+      let date: string | null = null;
 
-      if (title) updateData.title = title;
-      if (description) updateData.description = description;
-      if (status) updateData.status = status as Status;
-
-      if (Object.keys(updateData).length > 0) {
-        return await prisma.task.update({
-          where: { id },
-          data: updateData,
-        });
-      } else {
-        throw new Error("No valid fields provided to update");
+      if (dueDate) {
+        if (!isNaN(Date.parse(dueDate))) {
+          const cdate = new Date(dueDate);
+          cdate.setHours(23, 59, 59, 999);
+          date = cdate.toISOString();
+        } else {
+          throw new Error("Invalid date format. Please provide a valid date");
+        }
       }
+
+      const updateData = {
+        title,
+        description,
+        status: status as Status,
+        dueDate: date,
+      };
+
+      return await prisma.task.update({
+        where: { id },
+        data: updateData,
+      });
     } catch (error) {
       console.error("Error updating task:", error);
       throw new Error(
