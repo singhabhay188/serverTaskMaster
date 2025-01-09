@@ -2,13 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { Status } from "@prisma/client";
 
 const queries = {
-  tasks: async (parent: any, { id }: { id: string }) => {
+  tasks: async (parent: any) => {
     try {
-      const tasks = await prisma.task.findMany({
-        where: {
-          userId: id,
-        },
-      });
+      const tasks = await prisma.task.findMany({});
       return tasks;
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -29,7 +25,6 @@ const mutations = {
         data: {
           title,
           description,
-          userId: "safasdfsadfasdf",
         },
       });
     } catch (error) {

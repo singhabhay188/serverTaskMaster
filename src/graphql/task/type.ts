@@ -11,6 +11,5 @@ export const types = `
           description: String
           status: Status
           dueDate: String
-          user: User
      }
 `;

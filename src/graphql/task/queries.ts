@@ -1,3 +1,3 @@
 export const queries = `
-    tasks(id: ID!): [Task]
+    tasks: [Task]
 `;
