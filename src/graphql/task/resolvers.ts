@@ -2,7 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { Status } from "@prisma/client";
 
 const queries = {
-  tasks: async (parent: any) => {
+  //_ = parent
+  tasks: async (_: any) => {
     try {
       const tasks = await prisma.task.findMany({});
       return tasks;
@@ -12,7 +13,7 @@ const queries = {
     }
   },
 
-  taskById: async (parent: any, { id }: { id: string }) => {
+  taskById: async (_: any, { id }: { id: string }) => {
     try {
       const task = await prisma.task.findUnique({ where: { id } });
       if (!task) {
@@ -30,11 +31,11 @@ const queries = {
 
 const mutations = {
   createTask: async (
-    parent: any,
+    _: any,
     args: { title: string; description: string; dueDate?: string }
   ) => {
     try {
-      let { title, description, dueDate } = args;
+      const { title, description, dueDate } = args;
 
       let date: string | null = null;
 
@@ -64,7 +65,7 @@ const mutations = {
   },
 
   updateTask: async (
-    parent: any,
+    _: any,
     args: {
       id: string;
       title: string;
